@@ -1,0 +1,39 @@
+{{- if eq .Values.IMAGINARY_ENABLED "yes" }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -c -f latest.yml --namespace {{ .Values.NAMESPACE }}
+    kompose.version: 1.31.2 (a92241f79)
+  labels:
+    io.kompose.service: nextcloud-aio-imaginary
+  name: nextcloud-aio-imaginary
+  namespace: {{ .Values.NAMESPACE }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: nextcloud-aio-imaginary
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -c -f latest.yml --namespace {{ .Values.NAMESPACE }}
+        kompose.version: 1.31.2 (a92241f79)
+      labels:
+        io.kompose.network/nextcloud-aio: "true"
+        io.kompose.service: nextcloud-aio-imaginary
+    spec:
+      containers:
+        - env:
+            - name: TZ
+              value: "{{ .Values.TIMEZONE }}"
+          image: nextcloud/aio-imaginary:20231030_072910-latest
+          name: nextcloud-aio-imaginary
+          ports:
+            - containerPort: 9000
+              protocol: TCP
+          securityContext:
+            capabilities:
+              add:
+                - SYS_NICE
+{{- end }}
